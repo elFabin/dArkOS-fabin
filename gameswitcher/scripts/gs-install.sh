@@ -73,14 +73,13 @@ confirm() {
 preflight() {
   [ -d "${GS_SRC}/scripts" ] || die "payload not found next to $0"
 
-  # Quick Mode rewrites the same RetroArch settings we do (and pause.sh too,
-  # if the power trigger is in use).  Running both would leave whichever was
-  # installed last in charge and make the uninstall of either one wrong.
+  # Quick Mode rewrites the same RetroArch settings we do.
+  # Running both would leave whichever was installed last
+  # in charge and make the uninstall of either one wrong.
   if [ -e "${ROOT}/usr/local/bin/quickmode.sh" ]; then
     die "Quick Mode is enabled.  Run Options > Advanced > Disable Quick Mode
 first, then install the Game Switcher.  They both take over the RetroArch
-savestate settings (and pause.sh, with the power trigger), so only one can be
-active at a time."
+savestate settings, so only one can be active at a time."
   fi
 
   if [ ! -e "${BIN}/retroarch" ]; then
@@ -148,47 +147,6 @@ is_shim() {
   grep -q 'gs-shim' "$1" 2>/dev/null
 }
 
-# GS_TRIGGER decides whether pause.sh gets hooked at all: with the default
-# (fn), the power button is never touched, so this has to be known before
-# that decision -- read whichever config is about to be effective (an
-# already-installed one if this is a reinstall, otherwise the shipped
-# default), the same value gs-common.sh would end up sourcing.
-effective_trigger() {
-  local src="${CONF}"
-  [ -f "${src}" ] || src="${GS_SRC}/config/gameswitcher.conf"
-  local value
-  value="$(grep -m1 '^GS_TRIGGER=' "${src}" 2>/dev/null | cut -d= -f2)"
-  printf '%s' "${value:-fn}"
-}
-
-# The power-button hook is a system file (pause.sh), unlike every other
-# trigger setting, so switching it on or off is an install-time action, not
-# a live one -- this mirrors it against whatever GS_TRIGGER now says.
-sync_pause_hook() {
-  local trigger; trigger="$(effective_trigger)"
-  case "${trigger}" in
-    power|both)
-      if [ -e "${BIN}/pause.sh" ] && ! grep -q 'gs-suspend' "${BIN}/pause.sh" 2>/dev/null; then
-        ${SUDO} cp "${BIN}/pause.sh" "${BIN}/pause.sh.gs-orig"
-      fi
-      ${SUDO} cp "${GS_SRC}/scripts/pause.sh.gs" "${BIN}/pause.sh"
-      ${SUDO} chmod 777 "${BIN}/pause.sh"
-      ;;
-    *)
-      # fn-only (the default): pause.sh is never touched on a fresh install.
-      # On a reinstall after switching away from power/both, put back
-      # whatever this tool itself backed up, so a mode change actually
-      # takes hold rather than leaving the hook installed but inert.
-      if [ -e "${BIN}/pause.sh.gs-orig" ] && grep -q 'gs-suspend' "${BIN}/pause.sh" 2>/dev/null; then
-        ${SUDO} cp -f "${BIN}/pause.sh.gs-orig" "${BIN}/pause.sh"
-        ${SUDO} chmod 777 "${BIN}/pause.sh"
-        ${SUDO} rm -f "${BIN}/pause.sh.gs-orig"
-      fi
-      ;;
-  esac
-  [ -e "${BIN}/pause.sh.gs-orig" ] && ${SUDO} chmod 777 "${BIN}/pause.sh.gs-orig"
-}
-
 # Older versions (rounds 9-13) installed a persistent systemd unit so the
 # carousel could be opened straight from EmulationStation's idle menus, not
 # just mid-game or via Options.  That path turned out to have no reliable
@@ -235,8 +193,6 @@ install_scripts() {
     ${SUDO} cp "${GS_SRC}/config/gameswitcher.conf" "${CONF}"
   fi
 
-  # Decided from GS_TRIGGER now that the config above is in its final state.
-  sync_pause_hook
   cleanup_idle_hotkey
 
   ${SUDO} chmod 777 "${BIN}/gs-common.sh" "${BIN}/gs-suspend.sh" "${BIN}/gs-menu.sh" \
@@ -304,29 +260,21 @@ patch_retroarch
 install_ui
 
 say ""
-case "$(effective_trigger)" in
-  power)
-    say "Done.  Press the power button briefly while a RetroArch game is"
-    say "running to snapshot it and open the switcher."
-    ;;
-  both)
-    say "Done.  Tap Fn, or press the power button briefly, while a RetroArch"
-    say "game is running to snapshot it and open the switcher."
-    ;;
-  *)
-    say "Done.  Tap Fn briefly while a RetroArch game is running to snapshot"
-    say "it and open the switcher.  (On a device other than the A10 Mini,"
-    say "use Options > Advanced > Game Switcher Button to teach it the right"
-    say "button.)  The power button still just suspends."
-    ;;
-esac
+say "Done.  Tap Fn briefly while a RetroArch game is running to snapshot"
+say "it and open the switcher.  (On a device other than the A10 Mini,"
+say "use Options > Advanced > Game Switcher Button to teach it the right"
+say "button.)  The power button still just suspends."
 say "The carousel is also reachable from Options > Game Switcher."
-say "Press A to continue..."
 
-while true; do
-  Test_Button_A
-  [ "$?" -eq 10 ] && break
-  sleep 0.2
-done
+if [ -z "${ASSUME_YES}" ]; then
+  say "Press A to continue..."
+  while true; do
+    Test_Button_A
+    [ "$?" -eq 10 ] && break
+    sleep 0.2
+  done
+else
+  sleep 4
+fi
 
 exit 0

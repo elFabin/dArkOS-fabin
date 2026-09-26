@@ -13,9 +13,8 @@
 # still invoked under its original basename, because it branches on
 # `basename "$0"` to serve both retroarch and retroarch32.
 #
-# Also runs the Fn-tap watcher (gs-hotkeyd.py) for the life of the loop when
-# GS_TRIGGER includes "fn", and freezes EmulationStation for the same span --
-# see gs-common.sh for both.
+# Also runs the Fn-tap watcher (gs-hotkeyd.py) for the life of the loop,
+# and freezes EmulationStation for the same span. See gs-common.sh for both.
 #############################################################################
 
 # shellcheck disable=SC1090
@@ -69,18 +68,13 @@ gs_run_ui() {
 }
 
 # ---------------------------------------------------------------------------
-# The Fn-tap watcher (GS_TRIGGER=fn|both).  Started once for the whole switch
-# session and stopped on every exit path, It fires gs-suspend.sh itself; the 
-# shim only has to keep it alive for exactly as long as a game might be
-# running.
+# The Fn-tap watcher.  Started once for the whole switch session and stopped
+# on every exit path, It fires gs-suspend.sh itself; the shim only has to 
+# keep it alive for exactly as long as a game might be running.
 # ---------------------------------------------------------------------------
 GS_HOTKEYD_PID=""
 
 gs_hotkeyd_start() {
-  case "${GS_TRIGGER}" in
-    fn|both) ;;
-    *) return 0 ;;
-  esac
   command -v python3 >/dev/null 2>&1 || return 0
   [ -x "${GS_BIN}/gs-hotkeyd.py" ] || return 0
   # Deliberately not `disown`ed: gs_hotkeyd_stop needs `wait` to actually

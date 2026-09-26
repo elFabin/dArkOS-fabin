@@ -28,13 +28,7 @@ if grep -q 'gs-shim' "${GS_BIN}/retroarch" 2>/dev/null; then
 else
   echo "retroarch:      NOT installed"
 fi
-echo "GS_TRIGGER:     ${GS_TRIGGER}"
 echo "GS_SHOW_SPLASH: ${GS_SHOW_SPLASH}"
-if grep -q 'gs-suspend' "${GS_BIN}/pause.sh" 2>/dev/null; then
-  echo "pause.sh:       hooked (power trigger active)"
-else
-  echo "pause.sh:       stock (power trigger not installed)"
-fi
 echo
 
 echo "-- RetroArch config --"
@@ -92,8 +86,7 @@ echo "configured device: ${GS_HOTKEY_DEVICE:-(match by capability, not name)}"
 if pgrep -f gs-hotkeyd.py >/dev/null 2>&1; then
   echo "watcher:           running"
 else
-  echo "watcher:           not running (only active while a game is up, and"
-  echo "                   only when GS_TRIGGER is fn or both)"
+  echo "watcher:           not running (only active while a game is up)"
 fi
 echo
 

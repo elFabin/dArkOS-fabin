@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################################
 # gs-suspend.sh - snapshot the running RetroArch game and hand control to the
-# switcher.  Reached from pause.sh on a power short-press.
+# switcher. 
 #
 # The savestate itself is written by RetroArch, not by us: install.sh turns on
 # savestate_auto_save, so a clean QUIT leaves <rom>.state.auto next to the ROM

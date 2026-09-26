@@ -43,10 +43,5 @@ done
 gs_fix_perm "${CONF}"
 
 printf '\nSaved.  "%s" (code %s) opens the switcher from now on.\n' "${DEVICE}" "${CODE}" > /dev/tty1
-case "${GS_TRIGGER}" in
-  fn|both) ;;
-  *) printf 'Note: GS_TRIGGER is "%s", so this has no effect until you set it\n' "${GS_TRIGGER}" > /dev/tty1
-     printf 'to "fn" or "both" in gameswitcher.conf.\n' > /dev/tty1 ;;
-esac
 sleep 4
 exit 0

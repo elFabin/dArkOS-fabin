@@ -4,8 +4,8 @@
 # Switcher on or off.
 #
 # It ships inactive, the way Quick Mode does: the payload is on the image but
-# nothing hooks pause.sh or the RetroArch wrapper until the player asks.  The
-# one entry offers whichever action applies.
+# nothing hooks the RetroArch wrapper until the player asks.  The one entry
+# offers whichever action applies.
 #############################################################################
 
 if [ -d "/opt/gameswitcher/scripts" ]; then

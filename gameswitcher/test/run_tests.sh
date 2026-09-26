@@ -50,8 +50,7 @@ done
 rm -rf "${ROOT}"/scripts/__pycache__
 
 if command -v shellcheck >/dev/null 2>&1; then
-  for f in "${ROOT}"/scripts/*.sh "${ROOT}"/scripts/pause.sh.gs \
-           "${ROOT}"/scripts/gs-install.sh "${ROOT}"/scripts/gs-uninstall.sh; do
+  for f in "${ROOT}"/scripts/*.sh "${ROOT}"/scripts/gs-install.sh "${ROOT}"/scripts/gs-uninstall.sh; do
     if shellcheck -S error -x "${f}" >/dev/null 2>&1; then ok "shellcheck $(basename "${f}")"
     else bad "shellcheck $(basename "${f}")" "$(shellcheck -S error -x "${f}" 2>&1 | head -5)"; fi
   done

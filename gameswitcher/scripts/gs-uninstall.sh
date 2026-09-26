@@ -79,15 +79,6 @@ for emulator in retroarch retroarch32; do
   fi
 done
 
-# pause.sh is only ever hooked when the power trigger was requested at
-# install time, but a leftover pause.sh.gs-orig means it was -- restore it
-# unconditionally so a stray hook is never left behind either way.
-if [ -e "${BIN}/pause.sh.gs-orig" ]; then
-  ${SUDO} cp -f "${BIN}/pause.sh.gs-orig" "${BIN}/pause.sh"
-  ${SUDO} chmod 777 "${BIN}/pause.sh"
-  ${SUDO} rm -f "${BIN}/pause.sh.gs-orig"
-fi
-
 restore_cfg
 
 if [ -e "${IDLE_UNIT}" ]; then
@@ -113,10 +104,15 @@ say "Your recent-games list is kept at ${GS_HOME}/.config/gameswitcher"
 say "in case you reinstall; delete that folder to clear it."
 say "Press A to continue..."
 
-while true; do
-  Test_Button_A
-  [ "$?" -eq 10 ] && break
-  sleep 0.2
-done
+if [ -z "${ASSUME_YES}" ]; then
+  say "Press A to continue..."
+  while true; do
+    Test_Button_A
+    [ "$?" -eq 10 ] && break
+    sleep 0.2
+  done
+else
+  sleep 4
+fi
 
 exit 0

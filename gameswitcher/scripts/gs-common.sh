@@ -4,9 +4,6 @@
 #
 # Sourced by gs-shim.sh, gs-suspend.sh and gs-menu.sh.  Keep this free of
 # side effects: sourcing it must never touch the screen or the running game.
-#
-# Note that gs-suspend.sh is reached from pause.sh, which ogage may run as
-# root, so nothing here may rely on $HOME.
 #############################################################################
 
 GS_USER="${GS_USER:-ark}"
@@ -43,17 +40,12 @@ GS_SHOT_TIMEOUT="${GS_SHOT_TIMEOUT:-5}"
 # function's own comment for why this replaced a polling loop.
 GS_TEARDOWN_MS="${GS_TEARDOWN_MS:-400}"
 
-# fn | power | both.  Fn is BTN_TRIGGER_HAPPY5 (evdev 708) on the A10 Mini --
+# Fn is BTN_TRIGGER_HAPPY5 (evdev 708) on the A10 Mini --
 # Blank GS_HOTKEY_DEVICE matchesby capability (any device that can emit the
 # code) rather than by name, so a wrong device name only narrows the search
 # instead of breaking it.
-GS_TRIGGER="${GS_TRIGGER:-fn}"
 GS_HOTKEY_CODE="${GS_HOTKEY_CODE:-708}"
 GS_HOTKEY_DEVICE="${GS_HOTKEY_DEVICE:-}"
-# Changing GS_TRIGGER here takes effect on the next game launch for the Fn
-# watcher (gs-shim.sh starts/stops it live).  The power-button hook is a
-# system file (pause.sh) and is only installed when the trigger requested at
-# install time included "power" -- flip it on by re-running gs-install.sh.
 
 # Log every switch, screenshot attempt and UI start to
 # ~/.config/gameswitcher/gameswitcher.log.
@@ -84,9 +76,7 @@ gs_log() {
   gs_fix_perm "${logf}"
 }
 
-# Files under ${GS_STATE} may be written by root (via pause.sh) or by ark (via
-# the shim).  Keep everything group/world writable so neither locks the other
-# out, mirroring how dArkOS treats /opt/system and /usr/local/bin.
+# Keep everything group/world writable.
 gs_fix_perm() {
   local f
   for f in "$@"; do
@@ -175,8 +165,8 @@ gs_ra_cmd() {
 # alive.  gs-shim.sh is installed as the file "retroarch"/"retroarch32" and
 # directly exec'd by path, so the kernel gives its own process the same comm
 # as the real RetroArch binary it forks and waits on (see "Never match
-# RetroArch by name" in CLAUDE.md).  This is exactly right for pause.sh.gs
-# and gs-doctor.sh, which run OUTSIDE the shim and want to know "is a switch
+# RetroArch by name" in CLAUDE.md).  This is exactly right for gs-doctor.sh,
+# which runs OUTSIDE the shim and want to know "is a switch
 # session active at all" -- but it must never be called from INSIDE
 # gs-shim.sh, where it would always see itself and never go false.
 gs_ra_running() {
