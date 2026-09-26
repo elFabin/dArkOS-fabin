@@ -321,5 +321,12 @@ case "$(effective_trigger)" in
     ;;
 esac
 say "The carousel is also reachable from Options > Game Switcher."
-[ -z "${ASSUME_YES}" ] && sleep 4
+say "Press A to continue..."
+
+while true; do
+  Test_Button_A
+  [ "$?" -eq 10 ] && break
+  sleep 0.2
+done
+
 exit 0

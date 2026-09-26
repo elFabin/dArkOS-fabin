@@ -108,8 +108,15 @@ rm -f "${GS_RUN:-/dev/shm}"/gs_session "${GS_RUN:-/dev/shm}"/gs_switch \
 # The recents list and its thumbnails are the player's, not ours: leave them
 # so a reinstall picks up where it left off.  Say so rather than deleting.
 say ""
-say "Done.  RetroArch is back to its stock settings."
+say "Done.  RetroArch is back to its previous settings."
 say "Your recent-games list is kept at ${GS_HOME}/.config/gameswitcher"
 say "in case you reinstall; delete that folder to clear it."
-[ -z "${ASSUME_YES}" ] && sleep 4
+say "Press A to continue..."
+
+while true; do
+  Test_Button_A
+  [ "$?" -eq 10 ] && break
+  sleep 0.2
+done
+
 exit 0
